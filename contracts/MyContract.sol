@@ -7,40 +7,33 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract MyContract is ERC721, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter public _tokenIds;
-    mapping(uint256 => string) public _tokenURIs;
     mapping(string => uint8) public hashes;
+    bool public isPaused;
+    string public baseUri;
 
-    constructor() ERC721("MyContract", "MYC") {}
+    constructor() ERC721("MyContract", "MYC") {
+        isPaused = true;
+    }
 
-    function mintNFT(address recipient, string memory tokenURI)
-        public
-        onlyOwner
-        returns (uint256)
-    {
-        _tokenIds.increment();
+    function mintNFT(address recipient) public returns (uint256) {
+        require(!isPaused, "mint is paused");
 
         uint256 newItemId = _tokenIds.current();
+        _tokenIds.increment();
         _mint(recipient, newItemId);
-        _setTokenURI(newItemId, tokenURI);
 
         return newItemId;
     }
 
-    /**
-     * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
-     */
-    function _setTokenURI(uint256 tokenId, string memory _tokenURI)
-        internal
-        virtual
-    {
-        require(
-            _exists(tokenId),
-            "ERC721URIStorage: URI set of nonexistent token"
-        );
-        _tokenURIs[tokenId] = _tokenURI;
+    function setPause(bool state) public onlyOwner {
+        isPaused = state;
+    }
+
+    function setBaseURI(string memory base) public onlyOwner {
+        baseUri = base;
+    }
+
+    function _baseURI() internal view virtual override returns (string memory) {
+        return baseUri;
     }
 }
