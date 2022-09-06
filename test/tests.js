@@ -1,7 +1,7 @@
 const MyContract = artifacts.require("MyContract")
 const {expectRevert} = require('@openzeppelin/test-helpers');
 
-contract('Exploitable', (accounts) => {
+contract('MyContract', (accounts) => {
   it('should return zero balance on deploy', async () => {
     const instance = await MyContract.deployed()
     const balance = await instance.balanceOf.call(accounts[0])
